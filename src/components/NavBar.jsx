@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import Logo from "./Logo";
 import AppContext from "../context/AppContext";
+import { removeToken } from "../utils/token";
 import "./styles/NavBar.css";
 
 function NavBar() {
