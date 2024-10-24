@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import * as api from "../utils/api";
 import { setToken, getToken } from "../utils/token";
 import Ducks from "./Ducks";
 import Login from "./Login";
 import MyProfile from "./MyProfile";
 import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
+import AppContext from '../context/AppContext';
 import * as auth from '../utils/auth';
+import * as api from "../utils/api";
 import "./styles/App.css";
 
 function App() {
@@ -46,6 +47,9 @@ function App() {
     password,
     confirmPassword,
   }) => {
+    console.log(username,
+      email,
+      password);
     if (password === confirmPassword) {
       auth.register(username, password, email)
        .then(() => {
@@ -74,53 +78,55 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route 
-        path="/ducks" 
-        element={
-          <ProtectedRoute isLoggedIn={isLoggedIn} >
-            <Ducks />
-          </ProtectedRoute>} />
-      <Route 
-        path="/my-profile" 
-        element={
-          <ProtectedRoute isLoggedIn={isLoggedIn} >
-            <MyProfile userData={userData}/>
-          </ProtectedRoute>} />
-      <Route
-        path="/login"
-        element={
-          <ProtectedRoute isLoggedIn={isLoggedIn} anonymous >
-            <div className="loginContainer">
-              <Login  handleLogin={handleLogin} />
-            </div>
-          </ProtectedRoute>
+    <AppContext.Provider value = {{ isLoggedIn, setIsLoggedIn }}>
+      <Routes>
+        <Route 
+          path="/ducks" 
+          element={
+            <ProtectedRoute>
+              <Ducks />
+            </ProtectedRoute>} />
+        <Route 
+          path="/my-profile" 
+          element={
+            <ProtectedRoute>
+              <MyProfile userData={userData} />
+            </ProtectedRoute>} />
+        <Route
+          path="/login"
+          element={
+            <ProtectedRoute anonymous >
+              <div className="loginContainer">
+                <Login  handleLogin={handleLogin} />
+              </div>
+            </ProtectedRoute>
 
-          
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <ProtectedRoute isLoggedIn={isLoggedIn} anonymous >
-            <div className="registerContainer">
-              <Register handleRegistration={handleRegistration} />
-            </div>
-          </ProtectedRoute>
-          
-        }
-      />
-      <Route 
-        path="*" 
-        element = {
-          isLoggedIn ? (
-            <Navigate to="/ducks" replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
-    </Routes>
+            
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute  anonymous >
+              <div className="registerContainer">
+                <Register handleRegistration={handleRegistration} />
+              </div>
+            </ProtectedRoute>
+            
+          }
+        />
+        <Route 
+          path="*" 
+          element = {
+            isLoggedIn ? (
+              <Navigate to="/ducks" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+      </Routes>
+    </AppContext.Provider>
   );
 }
 
